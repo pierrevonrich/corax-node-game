@@ -1,0 +1,18 @@
+body {
+ font-family:arial, helvetica, sans-serif;
+ font-size: 1em;
+ color:#222;
+ padding:0;margin:0;
+}
+h1 {
+ font-size: 2em;
+ background-color:#666;
+ color:#eee;
+ padding:.2em .4em;
+ margin: .2em 0 .6em 0;
+}
+p {
+
+}
+#main {padding:1em;}
+#footer {background-color:#f3f3f3;padding:.4em .8em}

@@ -1,0 +1,17 @@
+{
+  "name": "MyNodeApp",
+  "version": "1.0.0",
+  "description": "My first Node app",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "Peter Richardson",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.12.4"
+  },
+  "repository": {
+    "type": "git",
+    "url":"https://github.com/pierrevonrich/corax-node-game.git"
+}
