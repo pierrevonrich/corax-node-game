@@ -12,6 +12,7 @@ canvas.height = height;
 var context = canvas.getContext('2d');
 context.font = "28px Courier";
 context.fillStyle = "#FFFFFF";
+var playAi = false;
 
 
 window.onload = function() {
@@ -24,14 +25,30 @@ var player2;
 var ball;
 var gameon;
 
+
+var keysDown = {};
+
+window.addEventListener("keydown", function(event) {
+  keysDown[event.keyCode] = true;
+});
+
+window.addEventListener("keyup", function(event) {
+  delete keysDown[event.keyCode];
+});
+
 function startPong() {
 
   player1 = new Player('left','human',0);
-  player2 = new Player('right','human',0);
+  if (playAi==true) {
+    player2 = new Player('right','ai',0);
+  } else {
+    player2 = new Player('right','human',0);
+  }
   ball = new Ball(300, 200);
-  gameon = true;
+  printInstructions();
+  gameon = false;
   animate(step);
-  score();
+
 }
 
 function stopPong() {
@@ -42,9 +59,26 @@ var step = function() {
   update();
   render();
   score();
+    } else {
+      checkmenu();
+    }
   animate(step);
-  }
+
 };
+
+function checkmenu(){
+  for(var key in keysDown) {
+    var value = Number(key);
+    if(value == 97) { // down arrow
+      playAi = true;
+    } else if (value == 98) { // up arrow
+      playAi = false;
+    } else if (value == 32) { // up arrow
+      gameon = true;
+    } 
+  }
+
+}
 
 function score(){
   if (player1.score>2){
@@ -63,6 +97,17 @@ function gameover(winner){
     context.fillStyle = "#FFFFFF";
     context.fillText('Winner ' + winner, 80 , canvas.height/2); 
 
+}
+function printInstructions(){
+    context.fillStyle = "#783080";
+    context.fillRect(0, 0, width, height);
+    context.fillStyle = "#FFFFFF"; 
+    context.fillText('OpenPong', 20 , 30); 
+    context.fillText('Space = Start / Stop', 20 , 60); 
+    context.fillText('W + S = Player 1', 20 , 90); 
+    context.fillText('Up + Down = Player 2', 20 , 120); 
+    context.fillText('Play AI = 1', 20 , 150); 
+    context.fillText('Play Human = 2', 20 , 180); 
 }
 
 
@@ -198,16 +243,6 @@ Ball.prototype.update = function(paddle1, paddle2) {
   }
     
 };
-
-var keysDown = {};
-
-window.addEventListener("keydown", function(event) {
-  keysDown[event.keyCode] = true;
-});
-
-window.addEventListener("keyup", function(event) {
-  delete keysDown[event.keyCode];
-});
 
 
 var update = function() {
