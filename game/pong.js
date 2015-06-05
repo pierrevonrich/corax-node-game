@@ -10,7 +10,8 @@ var height = 400;
 canvas.width = width;
 canvas.height = height;
 var context = canvas.getContext('2d');
-
+context.font = "18px Courier";
+context.strokeStyle = "#FFFFFF";
 var score1 = document.createElement('span');
 var score2 = document.createElement('span');
 
@@ -23,7 +24,7 @@ window.onload = function() {
 var player1;
 var player2;
 var ball;
-var gameon = {value:false};
+var gameon;
 
 function startPong() {
 
@@ -32,14 +33,14 @@ function startPong() {
   ball = new Ball(300, 200);
   gameon = true;
   animate(step);
-
+  score();
 }
+
 function stopPong() {
   gameon = false;
-
 }
 var step = function() {
-  if(gameon==true){}
+  if(gameon==true){
   update();
   render();
   animate(step);
@@ -49,6 +50,8 @@ var step = function() {
 function score(){
   console.log(player1.score + ' ' + player2.score);
 
+  context.strokeText(player1.score.toString(), 20, 10); 
+  context.strokeText(player2.score.toString(), 560, 10); 
   if (player1.score>2){
     gameover('Player 1')
   }
@@ -60,8 +63,9 @@ function score(){
 function gameover(winner){
 	console.log('Winner ' + winner);
     context.fillStyle = "#000000";
-    
-    return(false);
+    context.fillRect(0, 0, width, height);
+    context.strokeText('Winner ' + winner, canvas.width/2, canvas.height/2); 
+    stopPong();
 }
 
 
@@ -71,14 +75,6 @@ var update = function() {
 var render = function() {
   context.fillStyle = "#783080";
   context.fillRect(0, 0, width, height);
-  score1.style.top = '10px';
-  score1.style.left = '10px';
-  score1.style.top = '10px';
-  score1.style.left = '500px';
-  console.log(player1.score + ' ' + player2.score);
-  score1.innerHTML = player1.score;
-  score2.innerHTML = player2.score;
-
 };
 
 
@@ -99,9 +95,9 @@ Paddle.prototype.render = function() {
 
 function Player(side,opptype,score) {
   if (side == 'left'){
-    this.paddle = new Paddle(10, 175, 10, 50);
+    this.paddle = new Paddle(10, 180, 10, 50);
   } else {if (side == 'right'){
-    this.paddle = new Paddle(580, 175, 10, 50);
+    this.paddle = new Paddle(580, 180, 10, 50);
   }}
   this.score = score;
   this.side = side;
