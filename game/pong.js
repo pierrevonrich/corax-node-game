@@ -10,10 +10,8 @@ var height = 400;
 canvas.width = width;
 canvas.height = height;
 var context = canvas.getContext('2d');
-context.font = "18px Courier";
-context.strokeStyle = "#FFFFFF";
-var score1 = document.createElement('span');
-var score2 = document.createElement('span');
+context.font = "28px Courier";
+context.fillStyle = "#FFFFFF";
 
 
 window.onload = function() {
@@ -43,15 +41,12 @@ var step = function() {
   if(gameon==true){
   update();
   render();
+  score();
   animate(step);
   }
 };
 
 function score(){
-  console.log(player1.score + ' ' + player2.score);
-
-  context.strokeText(player1.score.toString(), 20, 10); 
-  context.strokeText(player2.score.toString(), 560, 10); 
   if (player1.score>2){
     gameover('Player 1')
   }
@@ -61,11 +56,13 @@ function score(){
   }
 }
 function gameover(winner){
-	console.log('Winner ' + winner);
+  	console.log('Winner ' + winner);
+    stopPong();
     context.fillStyle = "#000000";
     context.fillRect(0, 0, width, height);
-    context.strokeText('Winner ' + winner, canvas.width/2, canvas.height/2); 
-    stopPong();
+    context.fillStyle = "#FFFFFF";
+    context.fillText('Winner ' + winner, 80 , canvas.height/2); 
+
 }
 
 
@@ -110,7 +107,6 @@ Player.prototype.render = function() {
 
 
 
-
 function Ball(x, y) {
   this.x = x;
   this.y = y;
@@ -132,6 +128,10 @@ var render = function() {
   player1.render();
   player2.render();
   ball.render();
+  context.fillStyle = "#FFFFFF";
+  context.fillText(player1.score, 10, 30); 
+  context.fillText(player2.score, 570, 30); 
+
 };
 
 var update = function() {
@@ -170,7 +170,6 @@ Ball.prototype.update = function(paddle1, paddle2) {
     this.x = 300;
     this.y = 200;
     player1.score = player1.score+1
-    score();
   }
   if(this.x < 0 ) { // player 2 scored
     this.x_speed = 3;
@@ -178,7 +177,6 @@ Ball.prototype.update = function(paddle1, paddle2) {
     this.x = 300;
     this.y = 200;
     player2.score += 1
-    score();
   }
 
   if (top_x < 300) {
