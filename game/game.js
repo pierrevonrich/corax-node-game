@@ -85,7 +85,7 @@ function myturn(Organism) {
  //Collision
 
 
- //Fight Flight F##k or Feed
+ //Fight Flight or Feed
 
 
  //Did I win?
