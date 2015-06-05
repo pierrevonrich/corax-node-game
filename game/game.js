@@ -1,6 +1,6 @@
 $(document).ready(function() {
  console.log("ready!");
- testCanvas();
+ initGame();
 });
 
 function testCanvas(){
@@ -17,15 +17,92 @@ function testCanvas(){
 }
 
 //Initiate game objects
-function game(gridX,gridY,players){
- this gridX = gridX;
- this gridY = gridY;
- this players = players;
+function Game() {
+
+}
+Game.Board = function(width,height){
+ this width = width;
+ this height = height;
+}
+Board.Cell = function(locX,locY){
+ this locX = locX;
+ this locY = locY;
+}
+
+Game.Clans = function(name,colour){
+ this name = name;
+ this colour = colour;
+}
+Game.Organism = function(name,Clans,hp,str,mov,age){
+ this name = name;
+ this Clans = Clans;
+ this hp = hp;
+ this str = str;
+ this mov = mov;
+ this age = age;
+}
+Game.Item = function(type,reward,block){
+ this type = type;
+ this reward = reward;
+ this block = block
 }
 
 
-var game = new Object();
-var gameGrid = new Object();
-var gameOrganism = new Object();
+
+GameOrganism.move = function(){
+ //Where am I
+ if ()
+ 
+}
+GameOrganism.die = function(){
+	
+
+}
+GameOrganism.eat = function(targetFood){
+	
+
+}
+GameOrganism.split = function(){
+	
+
+}
+function colisioncheck(Board,Organism) {
 
 
+}
+
+function fight(Organism1,Organism2) {
+
+
+}
+
+function myturn(Organism) {
+ console.log("my turn " + Organism.Name);
+ //Movement
+ console.log("movement");
+ Organism.move();
+
+ //Collision
+
+
+ //Fight Flight F##k or Feed
+
+
+ //Did I win?
+
+
+ //Split
+
+
+ //Age
+
+
+}
+
+
+function initGame() {
+ console.log("initGame");
+ var numClans = 2;
+ var myGameBoard = GameBoard(50,50)
+ 
+}
