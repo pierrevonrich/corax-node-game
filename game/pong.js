@@ -12,12 +12,14 @@ canvas.height = height;
 var context = canvas.getContext('2d');
 context.font = "28px Courier";
 context.fillStyle = "#FFFFFF";
-var playAi = false;
+var ai1 = false;
+var ai2 = false;
+var bounces = 0;
 
 
 window.onload = function() {
   document.body.appendChild(canvas);
-  startPong();
+  printInstructions();
   animate(step)
 };
 
@@ -36,6 +38,7 @@ window.addEventListener("keydown", function(event) {
 });
 
 window.addEventListener("keyup", function(event) {
+  checkmenu();
   delete keysDown[event.keyCode];
 });
 
@@ -43,16 +46,21 @@ function resetPong() {
   delete ball;
   delete player1;
   delete player2;
-  
+  bounces = 0;
   gameon = false;
 }
 
 function startPong() {
   //resetPong();
-
-  player1 = new Player('left','human',0);
-  if (playAi==true) {
+  if (ai1==true){
+    player1 = new Player('left','ai',0);
+    player1.paddle.y_speed=3;
+  } else {
+    player1 = new Player('left','human',0);
+  }
+  if (ai2==true) {
     player2 = new Player('right','ai',0);
+    player2.paddle.y_speed=-3;
   } else {
     player2 = new Player('right','human',0);
   }
@@ -72,28 +80,33 @@ var step = function() {
     render();
     score();
   }
-  checkmenu();
-  
   animate(step);
-
 };
 
 function checkmenu(){
   for(var key in keysDown) {
     var value = Number(key);
     if(value == 49) { // 1
-      playAi = true;
+      if(ai1==true) {ai1=false} else {ai1=true};
+      console.log('ai1:'+ai1);
     } else if (value == 50) { // 2
-      playAi = false;
+      if(ai2==true) {ai2=false} else {ai2=true};
+      console.log('ai2:'+ai2);
+    } else if (value == 73) { //i
+      resetPong();
+      printInstructions();
+      console.log('print instructions');
     } else if (value == 32) { // space
       if (gameon==true){
         gameon=false;
       } else {
         gameon=true;
       }
+      console.log('pause:'+gameon);
     } else if (value ==82) {//r
+      console.log('reset');
       resetPong();
-       startPong();   
+      startPong();   
      }
   }
 
@@ -122,11 +135,12 @@ function printInstructions(){
     context.fillRect(0, 0, width, height);
     context.fillStyle = "#FFFFFF"; 
     context.fillText('OpenPong', 20 , 30); 
-    context.fillText('Space = Start / Stop', 20 , 60); 
-    context.fillText('W + S = Player 1', 20 , 90); 
-    context.fillText('Up + Down = Player 2', 20 , 120); 
-    context.fillText('Play AI = 1', 20 , 150); 
-    context.fillText('Play Human = 2', 20 , 180); 
+    context.fillText('Space = Pause', 20 , 60); 
+    context.fillText('R = Reset', 20 , 90); 
+    context.fillText('W + S = Player 1', 20 , 120); 
+    context.fillText('Up + Down = Player 2', 20 , 150); 
+    context.fillText('1 = Toggle human AI player 1', 20 , 180); 
+    context.fillText('2 = Toggle human AI player 2', 20 , 210); 
 }
 
 
@@ -183,6 +197,13 @@ Ball.prototype.render = function() {
   context.fillStyle = "#FFFFFF";
   context.fill();
 };
+Ball.prototype.reset = function(direction) {
+  this.x = canvas.width / 2;
+  this.y = canvas.height / 2;
+  this.x_speed = direction;
+  this.y_speed = 0;
+
+}
 
 var render = function() {
   context.fillStyle = "#493C78";
@@ -222,27 +243,27 @@ Ball.prototype.update = function(paddle1, paddle2) {
   if(this.y - 5 < 0) { // hitting the top wall
     this.y = 5;
     this.y_speed = -this.y_speed;
+    bounces += 1;
   } else if(this.y + 5 > canvas.height) { // hitting the bottom wall
     this.y = canvas.height-5;
     this.y_speed = -this.y_speed;
+    bounces += 1;
   }
 
 
   if(this.x > canvas.width) { // player 1 scored
-    this.x_speed = 3;
-    this.y_speed = 0;
-    this.x = canvas.width/2;
-    this.y = canvas.height/2;
+    this.reset(-3);
     player1.score +=1
-    console.log (player1.score + ' ' + player2.score);
+    console.log ('score:' + player1.score + ' ' + player2.score);
+    console.log ('bounces:'+ bounces);
+    bounces = 0;
   }
   if(this.x < 0 ) { // player 2 scored
-    this.x_speed = -3;
-    this.y_speed = 0;
-    this.x = canvas.width/2;
-    this.y = canvas.height/2;
+    this.reset(3);
     player2.score += 1
-    console.log (player1.score + ' ' + player2.score);
+    console.log ('score:' + player1.score + ' ' + player2.score);
+    console.log ('bounces:'+ bounces);
+    bounces = 0;
   }
 
   if (top_x < canvas.width/2) {
@@ -252,6 +273,7 @@ Ball.prototype.update = function(paddle1, paddle2) {
         this.x_speed = 3;
         this.y_speed += (paddle1.y_speed / 2);
         this.x += this.x_speed;
+        bounces += 1;
     }
   } else {  
     if(top_x < (paddle2.x + paddle2.width) && bottom_x > paddle2.x && 
@@ -260,6 +282,7 @@ Ball.prototype.update = function(paddle1, paddle2) {
        this.x_speed = -3;
        this.y_speed += (paddle2.y_speed / 2);
        this.x += this.x_speed;
+       bounces += 1;
     }
   }
 };
@@ -295,44 +318,57 @@ var update = function() {
 
 
 Player.prototype.update = function(ball) {
-  if (this.opptype == 'ai') {
-    var y_pos = ball.y;
-    var diff = -((this.paddle.y + (this.paddle.height / 2)) - y_pos);
-    if(diff < 0 && diff < -4) { // max speed down
-      diff = -5;
-    } else if(diff > 0 && diff > 4) { // max speed up
-      diff = 5;
-    }
-    this.paddle.move(0, diff);
-    if(this.paddle.y < 0) {
-	    this.paddle.y = 0;
-	  } else if (this.paddle.y + this.paddle.height > canvas.height) {
-	    this.paddle.y = canvas.height - this.paddle.height;
-	  }
-  } 
-  
-  if (this.opptype == 'human' && this.side=='right') {
-  for(var key in keysDown) {
-    var value = Number(key);
-    if(value == 38) { // down arrow
-      this.paddle.move(0, -4);
-    } else if (value == 40) { // up arrow
-      this.paddle.move(0, 4);
-    } else {
-      this.paddle.move(0, 0);
-    }
-  }}
-  if (this.opptype == 'human' && this.side=='left') {
-  for(var key in keysDown) {
-    var value = Number(key);
-    if(value == 87) { // down arrow
-      this.paddle.move(0, -4);
-    } else if (value == 83) { // up arrow
-      this.paddle.move(0, 4);
-    } else {
-      this.paddle.move(0, 0);
-    }
-  }}
 
+  if (this.opptype == 'ai') {
+    this.updateai(ball);
+  } else {
+    if (this.side=='right') {
+      for(var key in keysDown) {
+        var value = Number(key);
+        if(value == 38) { // down arrow
+          this.paddle.move(0, -4);
+        } else if (value == 40) { // up arrow
+          this.paddle.move(0, 4);
+        } else {
+          this.paddle.move(0, 0);
+        }
+      }
+    } else {
+      for(var key in keysDown) {
+        var value = Number(key);
+        if(value == 87) { // down arrow
+          this.paddle.move(0, -4);
+        } else if (value == 83) { // up arrow
+          this.paddle.move(0, 4);
+        } else {
+          this.paddle.move(0, 0);
+        }
+      }
+    }
+  }
+}
+
+Player.prototype.updateai = function(ball) {
+  var i1 = getRandomInt(0,10+bounces)
+  var i2 = getRandomInt(-1,1)
+  
+  var y_pos = ball.y;
+  var diff = -((this.paddle.y + (this.paddle.height / 2)) - y_pos);
+  if(diff < 0 && diff < -4) { // max speed down
+    diff = -4;
+  } else if(diff > 0 && diff > 4) { // max speed up
+    diff = 4;
+  }
+ 
+  if ((this.paddle.y > y_pos - (this.paddle.height/2)) || ((this.paddle.y + this.paddle.height ) < y_pos + (this.paddle.height/2))){
+    if ((this.side=='right' && ball.x_speed>0) || (this.side=='left' && ball.y_speed <0) || i1>5) {
+      diff += i2;
+      this.paddle.move(0, diff);
+    }
+  }  
+}
+
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min)) + min;
 }
 
